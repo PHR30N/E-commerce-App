@@ -1,5 +1,6 @@
 
 import 'package:e_commerce_app/Routes.dart';
+import 'package:e_commerce_app/app_theme_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -27,6 +28,18 @@ class _ProductPageState extends State<ProductPage> {
       appBar: AppBar(
         title: const Text("Products"),
         centerTitle: true,
+        actions: [
+    IconButton(
+      icon: Icon(
+        context.watch<AppThemeCubit>().state.isDark
+            ? Icons.light_mode
+            : Icons.dark_mode,
+      ),
+      onPressed: () {
+        context.read<AppThemeCubit>().toggleTheme();
+      },
+    ),
+  ],
       ),
       body: BlocBuilder<HomeCubit, HomeState>(
         builder: (context, state) {

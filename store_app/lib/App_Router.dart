@@ -11,7 +11,7 @@ import 'Product_Details.dart';
 import 'Register_Page.dart';
 
 class AppRouter {
-  final router = GoRouter(
+  static final router = GoRouter(
     initialLocation: '/',
     routes: [
       GoRoute(
