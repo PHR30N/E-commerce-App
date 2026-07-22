@@ -23,6 +23,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+            backgroundColor: const Color.fromARGB(255, 161, 202, 234),
+
       appBar: AppBar(title: Text(widget.name ), centerTitle: true),
       body: BlocBuilder<HomeCubit, HomeState>(
         builder: (context, state) {

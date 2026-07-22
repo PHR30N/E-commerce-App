@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/routing/Routes.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -186,7 +185,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         onPressed: () {
                           if (formKey.currentState!.validate()) {
                             formKey.currentState!.save();
-                            context.go(Routes.productPage);
+                            context.go("/verification");
                           }
                         },
                         icon: const Icon(
@@ -206,8 +205,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
 
                     const SizedBox(height: 30),
-
-                   
                   ],
                 ),
               ),

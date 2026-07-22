@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/routing/Routes.dart';
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -187,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: () {
                           if (formKey.currentState!.validate()) {
                             formKey.currentState!.save();
-                            context.goNamed(Routes.homePage);
+                            context.go("/verification");
                           }
                         },
                         icon: const Icon(
@@ -207,8 +205,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
 
                     const SizedBox(height: 30),
-
-                   
                   ],
                 ),
               ),
