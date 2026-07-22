@@ -1,12 +1,14 @@
-import 'package:e_commerce_app/app_theme.dart';
-import 'package:e_commerce_app/app_theme_cubit.dart';
-import 'package:e_commerce_app/app_theme_state.dart';
+import 'package:e_commerce_app/core/utils/app_theme.dart';
+import 'package:e_commerce_app/injection_container.dart';
+import 'package:e_commerce_app/presentaion/cubit/app_theme_cubit.dart';
+import 'package:e_commerce_app/presentaion/cubit/app_theme_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'App_Router.dart';
-import 'Home_Page.dart';
+import 'app/routing/app_router.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await initDependencies();
   runApp(const MyApp());
 }
 

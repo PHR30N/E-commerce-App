@@ -1,11 +1,11 @@
 
-import 'package:e_commerce_app/Routes.dart';
-import 'package:e_commerce_app/app_theme_cubit.dart';
+import 'package:e_commerce_app/app/routing/Routes.dart';
+import 'package:e_commerce_app/presentaion/cubit/app_theme_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'home_cubit.dart'; 
-import 'home_state.dart';
+import '../cubit/home_cubit.dart'; 
+import '../cubit/home_state.dart';
 
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key});
@@ -62,7 +62,7 @@ class _ProductPageState extends State<ProductPage> {
               borderRadius: BorderRadius.circular(16),
               onTap: () {
                 context.pushNamed(
-                  Routes.DetailsPage,
+                  Routes.detailsPage,
                   queryParameters: {"id":product.id,"name":product.name},
                 );
               },

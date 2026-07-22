@@ -1,4 +1,4 @@
-import 'Product_Model.dart';
+import '../../domain/models/product_model.dart';
 
 class HomeState{}
 

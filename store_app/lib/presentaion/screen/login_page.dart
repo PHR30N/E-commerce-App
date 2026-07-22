@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'Routes.dart';
+import '../../../../app/routing/Routes.dart';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -186,11 +187,7 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: () {
                           if (formKey.currentState!.validate()) {
                             formKey.currentState!.save();
-
-                            print(email);
-                            print(password);
-
-                            context.replaceNamed(Routes.ProductPage);
+                            context.replaceNamed(Routes.productPage);
                           }
                         },
                         icon: const Icon(

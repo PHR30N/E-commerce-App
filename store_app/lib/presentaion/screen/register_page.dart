@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'Routes.dart';
+import '../../../../app/routing/Routes.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -186,11 +186,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         onPressed: () {
                           if (formKey.currentState!.validate()) {
                             formKey.currentState!.save();
-
-                            print(email);
-                            print(password);
-
-                            context.go(Routes.ProductPage);
+                            context.go(Routes.productPage);
                           }
                         },
                         icon: const Icon(

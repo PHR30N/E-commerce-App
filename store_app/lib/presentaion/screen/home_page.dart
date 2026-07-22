@@ -1,4 +1,4 @@
-import 'package:e_commerce_app/Routes.dart';
+import '../../../../app/routing/Routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,7 +18,7 @@ class HomePage extends StatelessWidget {
               children: [
                 TextButton(
                   onPressed: () {
-                    context.go(Routes.LoginPage);
+                    context.go(Routes.loginPage);
                   },
                   child: const Text(
                     'Login',
@@ -26,7 +26,7 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {context.go(Routes.RegisterPage);},
+                  onPressed: () {context.go(Routes.registerPage);},
                   child: const Text(
                     'Register',
                     style: TextStyle(color: Colors.white),
