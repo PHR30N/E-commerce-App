@@ -187,7 +187,7 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: () {
                           if (formKey.currentState!.validate()) {
                             formKey.currentState!.save();
-                            context.replaceNamed(Routes.productPage);
+                            context.goNamed(Routes.homePage);
                           }
                         },
                         icon: const Icon(
