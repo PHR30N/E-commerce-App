@@ -9,6 +9,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 161, 202, 234),
       appBar: AppBar(title: const Text("Settings")),
       body: BlocBuilder<AppThemeCubit, AppThemeState>(
         builder: (context, state) {
