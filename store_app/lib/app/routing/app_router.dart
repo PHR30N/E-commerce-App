@@ -131,7 +131,7 @@ class AppRouter {
           ),
           GoRoute(
             path: '/verification',
-            builder: (context, state) => const VerificationPage(),
+            builder: (context, state) => const VerificationPage(email: '',),
           ),
         ],
       ),
