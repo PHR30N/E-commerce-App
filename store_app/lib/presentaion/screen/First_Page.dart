@@ -1,3 +1,4 @@
+import 'package:e_commerce_app/app/routing/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -39,7 +40,7 @@ class AuthPage extends StatelessWidget {
                     height: 55,
                     child: OutlinedButton(
                       onPressed: () {
-                        context.go("/login");
+                        context.goNamed(Routes.loginPage);
                       },
 
                       child: const Text(
@@ -56,7 +57,7 @@ class AuthPage extends StatelessWidget {
                 height: 55,
                 child: OutlinedButton(
                   onPressed: () {
-                    context.go("/register");
+                    context.goNamed(Routes.registerPage);
                   },
                   child: const Text(
                     "Register",

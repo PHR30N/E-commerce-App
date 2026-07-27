@@ -72,10 +72,16 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             const SizedBox(height: 8),
 
             Text(product.description, style: const TextStyle(fontSize: 16)),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children:[ ElevatedButton(onPressed: (){}, child: Text("Add To Cart",style: TextStyle(color: Colors.deepPurple[300],fontSize: 18),)),
+          ])
           ],
         ),
       ),
-      _=> SizedBox(),
+      _=>  Center(
+                child: CircularProgressIndicator()),
 };
           },
           ),

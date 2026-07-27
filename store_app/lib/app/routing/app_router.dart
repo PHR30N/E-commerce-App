@@ -1,9 +1,12 @@
+import 'package:e_commerce_app/core/constant/local_key.dart';
+import 'package:e_commerce_app/core/local_storage/base_local_storage.dart';
 import 'package:e_commerce_app/domain/repos/products_repo.dart';
 import 'package:e_commerce_app/injection_container.dart';
-import 'package:e_commerce_app/presentaion/screen/First_Page.dart';
+import 'package:e_commerce_app/presentaion/screen/first_page.dart';
 import 'package:e_commerce_app/presentaion/screen/Product_Page.dart';
-import 'package:e_commerce_app/app/routing/Routes.dart';
+import 'package:e_commerce_app/app/routing/routes.dart';
 import 'package:e_commerce_app/presentaion/screen/cart_page.dart';
+import 'package:e_commerce_app/presentaion/screen/onboarding_page.dart';
 import 'package:e_commerce_app/presentaion/screen/search.dart';
 import 'package:e_commerce_app/presentaion/screen/settings_page.dart';
 import 'package:e_commerce_app/presentaion/screen/verify_Page.dart';
@@ -17,25 +20,41 @@ import '../../presentaion/screen/register_page.dart';
 import '../../presentaion/screen/main_layout.dart';
 
 class AppRouter {
+  static final BaseLocalStorage? localStorage = getIt<BaseLocalStorage>();
   static final router = GoRouter(
     initialLocation: '/',
     routes: [
-      // أول صفحة
       GoRoute(
         path: '/',
+        name: Routes.onboardingPage,
+        redirect: (context, state) async {
+          // 1. Fetch value safely
+          final isOpen = await localStorage?.getBool(LocalKey.isOpen) ?? false;
+
+          // 2. If onboarding was completed, redirect to Auth screen
+          if (isOpen) {
+            return '/${Routes.auth}';
+          }
+
+          // 3. Return null so GoRouter stays on OnboardingPage
+          return null;
+        },
+        builder: (context, state) => const OnboardingPage(),
+      ),
+      GoRoute(
+        path: '/${Routes.auth}',
+        name: Routes.auth,
         builder: (context, state) => const AuthPage(),
       ),
 
-      // Login
       GoRoute(
-        path: '/login',
+        path: '/${Routes.loginPage}',
         name: Routes.loginPage,
         builder: (context, state) => const LoginPage(),
       ),
 
-      // Register
       GoRoute(
-        path: '/register',
+        path: '/${Routes.registerPage}',
         name: Routes.registerPage,
         builder: (context, state) => const RegisterPage(),
       ),

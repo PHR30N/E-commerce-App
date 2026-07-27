@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:e_commerce_app/core/local_storage/base_local_storage.dart';
 import 'package:e_commerce_app/core/network/apis/api_consumer.dart';
 import 'package:e_commerce_app/core/network/apis/end_points.dart';
 import 'package:e_commerce_app/domain/repos/products_repo.dart';
@@ -7,8 +8,11 @@ import 'package:e_commerce_app/infrastructure/data_source/implementation/product
 import 'package:e_commerce_app/infrastructure/data_source/repo/products_repo_impl.dart';
 import 'package:e_commerce_app/infrastructure/external/dio/app_interceptor.dart';
 import 'package:e_commerce_app/infrastructure/external/dio/dio_consumer.dart';
+import 'package:e_commerce_app/infrastructure/external/local_storage_impl/shared_pref_local_storage_impl.dart';
+import 'package:e_commerce_app/presentaion/cubit/app_theme_cubit.dart';
 import 'package:e_commerce_app/presentaion/cubit/home_cubit.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 final getIt = GetIt.instance;
@@ -24,11 +28,11 @@ Future initDependencies() async {
 
 abstract class InjectionHelper {
   static Future<void> injectExternal() async {
-    // final sharedPreferences = await SharedPreferences.getInstance();
+    final sharedPreferences = await SharedPreferences.getInstance();
 
-    // getIt.registerFactory<BaseLocalStorage>(
-    //   () => SharedPrefsLocalStorageImpl(preferences: sharedPreferences),
-    // );
+    getIt.registerFactory<BaseLocalStorage>(
+      () => SharedPrefsLocalStorageImpl(preferences: sharedPreferences),
+    );
     getIt.registerSingleton<Dio>(Dio());
     getIt.registerSingleton<AppInterceptors>(
         AppInterceptors(
@@ -65,9 +69,17 @@ abstract class InjectionHelper {
   static void injectUsecases() {}
 
   static void injectBlocs() {
-    getIt.registerFactory<HomeCubit>(() => HomeCubit(
-          productsRepo: getIt<ProductsRepo>(),
-        ));
-    
+    // Pass BaseLocalStorage into AppThemeCubit
+    getIt.registerFactory<AppThemeCubit>(
+      () => AppThemeCubit(
+        localStorage: getIt<BaseLocalStorage>(),
+      ),
+    );
+
+    getIt.registerFactory<HomeCubit>(
+      () => HomeCubit(
+        productsRepo: getIt<ProductsRepo>(),
+      ),
+    );
   }
 }

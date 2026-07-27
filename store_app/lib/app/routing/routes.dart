@@ -1,5 +1,5 @@
 class Routes {
-  static const String auth = "/";
+  static const String auth = "first_page";
   static const String homePage = 'home_page';
   static const String loginPage = 'login_page';
   static const String registerPage = 'register_page';
@@ -9,4 +9,5 @@ class Routes {
   static const String search = 'search';
   static const String cartPage = 'cart_page';
   static const String mainLayout = "main_layout";
+  static const String onboardingPage = "onboarding_page";
 }
