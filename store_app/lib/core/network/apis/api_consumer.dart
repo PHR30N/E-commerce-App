@@ -1,8 +1,7 @@
-
+import 'package:e_commerce_app/core/network/apis/end_points.dart';
 import 'package:fpdart/fpdart.dart' show Either;
 
 import '../errors/failures.dart' show ServerFailure;
-
 
 abstract class ApiConsumer {
   Future<Either<ServerFailure, Map<String, dynamic>>> get({
@@ -29,4 +28,13 @@ abstract class ApiConsumer {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
   });
+  Future<Either<ServerFailure, Map<String, dynamic>>> verifyEmail({
+    required String email,
+    required String otp,
+  }) {
+    return post(
+      path: EndPoints.verifyEmail,
+      body: {"email": email, "otp": otp},
+    );
+  }
 }

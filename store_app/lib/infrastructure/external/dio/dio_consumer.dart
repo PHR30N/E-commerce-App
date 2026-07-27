@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:e_commerce_app/core/network/apis/api_consumer.dart';
+import 'package:e_commerce_app/core/network/apis/end_points.dart';
 import 'package:e_commerce_app/core/network/apis/status_codes.dart';
 import 'package:e_commerce_app/core/network/errors/exceptions.dart';
 import 'package:e_commerce_app/core/network/errors/failures.dart';
 import 'package:fpdart/fpdart.dart';
-
 
 class DioConsumer implements ApiConsumer {
   final Dio _client;
@@ -18,9 +18,9 @@ class DioConsumer implements ApiConsumer {
     required Dio client,
     required String baseUrl,
     required List<Interceptor> interceptors,
-  })  : _baseUrl = baseUrl,
-        _interceptors = interceptors,
-        _client = client {
+  }) : _baseUrl = baseUrl,
+       _interceptors = interceptors,
+       _client = client {
     (_client.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
       final client = HttpClient();
       client.badCertificateCallback =
@@ -151,5 +151,16 @@ class DioConsumer implements ApiConsumer {
     }
 
     return ServerFailure(msg: exception.msg);
+  }
+
+  @override
+  Future<Either<ServerFailure, Map<String, dynamic>>> verifyEmail({
+    required String email,
+    required String otp,
+  }) {
+    return post(
+      path: EndPoints.verifyEmail,
+      body: {"email": email, "otp": otp},
+    );
   }
 }

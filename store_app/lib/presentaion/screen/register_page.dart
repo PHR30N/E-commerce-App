@@ -1,4 +1,7 @@
+import 'package:e_commerce_app/presentaion/cubit/register_cubit.dart';
+import 'package:e_commerce_app/presentaion/cubit/register_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -9,16 +12,19 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
 
   String? email;
-  String? password;
 
   @override
   void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
@@ -26,34 +32,45 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 161, 202, 234),
+    return BlocListener<RegisterCubit, RegisterState>(
+      listener: (context, state) {
+        if (state is RegisterSuccess) {
+          context.push("/verification", extra: email);
+        }
 
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Form(
-              key: formKey,
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 30),
+        if (state is RegisterFailure) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
+        }
+      },
 
-                    const Text(
-                      "Welcome to Faster.",
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "WorkSans",
+      child: Scaffold(
+        backgroundColor: const Color.fromARGB(255, 161, 202, 234),
+
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              child: Form(
+                key: formKey,
+
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+
+                  child: Column(
+                    children: [
+                      const Text(
+                        "Welcome to Faster.",
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 30),
-
-                    socialButton(
+                      const SizedBox(height: 30),
+socialButton(
                       Icons.g_mobiledata,
-                      "Sign up with Google",
+                      "Login with Google",
                       style: const TextStyle(
                         fontSize: 18,
                         fontFamily: "WorkSans",
@@ -64,7 +81,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 15),
                     socialButton(
                       Icons.apple,
-                      "Sign up with Apple",
+                      "Login with Apple",
                       style: const TextStyle(
                         fontSize: 18,
                         fontFamily: "WorkSans",
@@ -75,7 +92,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 15),
                     socialButton(
                       Icons.facebook,
-                      "Sign up with Facebook",
+                      "Login with Facebook",
                       style: const TextStyle(
                         fontSize: 18,
                         fontFamily: "WorkSans",
@@ -97,115 +114,99 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                     ),
-
-                    const SizedBox(height: 20),
-
-                    TextFormField(
-                      controller: emailController,
-                      style: const TextStyle(
-                        fontFamily: "WorkSans",
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      TextFormField(
+                        controller: firstNameController,
+                        decoration: inputDecoration("First Name"),
+                        validator: requiredValidator,
                       ),
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        hintText: "Email Address",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+
+                      const SizedBox(height: 15),
+
+                      TextFormField(
+                        controller: lastNameController,
+                        decoration: inputDecoration("Last Name"),
+                        validator: requiredValidator,
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Email is required";
-                        }
-                        if (!value.contains("@")) {
-                          return "Enter a valid email";
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {
-                        email = value;
-                      },
-                    ),
 
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 15),
 
-                    TextFormField(
-                      controller: passwordController,
-                      style: const TextStyle(
-                        fontFamily: "WorkSans",
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        hintText: "Password",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Password is required";
-                        }
-                        if (value.length < 6) {
-                          return "Password must be at least 6 characters";
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {
-                        password = value;
-                      },
-                    ),
+                      TextFormField(
+                        controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: inputDecoration("Email Address"),
 
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          "Forgot Password?",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "WorkSans",
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 25),
-
-                    SizedBox(
-                      width: double.infinity,
-                      height: 55,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                        ),
-                        onPressed: () {
-                          if (formKey.currentState!.validate()) {
-                            formKey.currentState!.save();
-                            context.go("/verification");
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Email is required";
                           }
+
+                          if (!value.contains("@")) {
+                            return "Enter valid email";
+                          }
+
+                          return null;
                         },
-                        icon: const Icon(
-                          Icons.arrow_forward,
-                          color: Colors.white,
-                        ),
-                        label: const Text(
-                          "Sign Up",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontFamily: "WorkSans",
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      TextFormField(
+                        controller: passwordController,
+
+                        obscureText: true,
+
+                        decoration: inputDecoration("Password"),
+
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Password is required";
+                          }
+
+                          if (value.length < 6) {
+                            return "Password must be at least 6 characters";
+                          }
+
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 25),
+
+                      SizedBox(
+                        width: double.infinity,
+
+                        height: 55,
+
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                          ),
+
+                          onPressed: () {
+                            if (formKey.currentState!.validate()) {
+                              email = emailController.text;
+
+                              context.read<RegisterCubit>().register(
+                                email: emailController.text,
+
+                                password: passwordController.text,
+
+                                firstName: firstNameController.text,
+
+                                lastName: lastNameController.text,
+                              );
+                            }
+                          },
+
+                          child: const Text(
+                            "Sign Up",
+
+                            style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
                         ),
                       ),
-                    ),
-
-                    const SizedBox(height: 30),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -215,7 +216,23 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Widget socialButton(IconData icon, String text, {TextStyle? style}) {
+  InputDecoration inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+    );
+  }
+
+  String? requiredValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Field is required";
+    }
+
+    return null;
+  }
+}
+Widget socialButton(IconData icon, String text, {TextStyle? style}) {
     return SizedBox(
       width: double.infinity,
       height: 55,
@@ -223,7 +240,7 @@ class _RegisterPageState extends State<RegisterPage> {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
-          side: const BorderSide(color: Colors.grey),
+          side: const BorderSide(color: Colors.white),
         ),
         onPressed: () {},
         icon: Icon(icon),
@@ -239,4 +256,4 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
-}
+
