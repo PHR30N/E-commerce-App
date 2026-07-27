@@ -2,6 +2,8 @@ import 'package:e_commerce_app/core/constant/local_key.dart';
 import 'package:e_commerce_app/core/local_storage/base_local_storage.dart';
 import 'package:e_commerce_app/domain/repos/products_repo.dart';
 import 'package:e_commerce_app/injection_container.dart';
+import 'package:e_commerce_app/presentaion/cubit/register_cubit.dart';
+import 'package:e_commerce_app/presentaion/cubit/verify_email_cubit.dart';
 import 'package:e_commerce_app/presentaion/screen/first_page.dart';
 import 'package:e_commerce_app/presentaion/screen/Product_Page.dart';
 import 'package:e_commerce_app/app/routing/routes.dart';
@@ -56,7 +58,10 @@ class AppRouter {
       GoRoute(
         path: '/${Routes.registerPage}',
         name: Routes.registerPage,
-        builder: (context, state) => const RegisterPage(),
+        builder: (context, state) => BlocProvider(
+          create: (context) => getIt<RegisterCubit>(),
+          child: const RegisterPage(),
+        ),
       ),
 
       StatefulShellRoute.indexedStack(
@@ -131,7 +136,13 @@ class AppRouter {
           ),
           GoRoute(
             path: '/verification',
-            builder: (context, state) => const VerificationPage(email: '',),
+            builder: (context, state) {
+              final email = state.extra as String? ?? '';
+              return BlocProvider(
+                create: (context) => getIt<VerifyEmailCubit>(),
+                child: VerificationPage(email: email),
+              );
+            },
           ),
         ],
       ),

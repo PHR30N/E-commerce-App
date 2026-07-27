@@ -17,7 +17,10 @@ class ProductsRepoImpl extends ProductsRepo {
     try {
       final products = await productsDataSource.getProducts();
 
-      return Right(products as ProductResponse);
+      return products.fold(
+  (failure) => Left(failure),
+  (data) => Right(ProductResponse.fromJson(data)),
+);
     } catch (e) {
       return Left(ServerFailure(msg: e.toString()));
     }
@@ -28,7 +31,10 @@ class ProductsRepoImpl extends ProductsRepo {
     try {
       final product = await productsDataSource.getProductById(id: id);
 
-      return Right(product as Product);
+      return product.fold(
+  (failure) => Left(failure),
+  (data) => Right(Product.fromJson(data)),
+);
     } catch (e) {
       return Left(ServerFailure(msg: e.toString()));
     }
