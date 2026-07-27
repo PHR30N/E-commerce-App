@@ -1,9 +1,13 @@
 import 'package:e_commerce_app/core/constant/local_key.dart';
 import 'package:e_commerce_app/core/local_storage/base_local_storage.dart';
+import 'package:e_commerce_app/domain/models/category_model.dart';
+import 'package:e_commerce_app/domain/repos/category_repo.dart';
 import 'package:e_commerce_app/domain/repos/products_repo.dart';
 import 'package:e_commerce_app/injection_container.dart';
+import 'package:e_commerce_app/presentaion/cubit/category_cubit.dart';
 import 'package:e_commerce_app/presentaion/cubit/register_cubit.dart';
 import 'package:e_commerce_app/presentaion/cubit/verify_email_cubit.dart';
+import 'package:e_commerce_app/presentaion/screen/category_page.dart';
 import 'package:e_commerce_app/presentaion/screen/first_page.dart';
 import 'package:e_commerce_app/presentaion/screen/Product_Page.dart';
 import 'package:e_commerce_app/app/routing/routes.dart';
@@ -111,7 +115,17 @@ class AppRouter {
           ),
         ],
       ),
-
+GoRoute(
+  path: '/${Routes.category}',
+  name: Routes.category,
+  builder: (context, state) {
+    final category = state.extra as CategoryModel;
+    return BlocProvider(
+      create: (context) => CategoryCubit(getIt<CategoriesRepo>()),
+      child: CategoryPage(category: category),
+    );
+  },
+),
       ShellRoute(
         builder: (context, state, child) {
           return BlocProvider(

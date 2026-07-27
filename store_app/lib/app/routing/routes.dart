@@ -10,4 +10,7 @@ class Routes {
   static const String cartPage = 'cart_page';
   static const String mainLayout = "main_layout";
   static const String onboardingPage = "onboarding_page";
+  static const String category = "category_page";
+
+
 }
