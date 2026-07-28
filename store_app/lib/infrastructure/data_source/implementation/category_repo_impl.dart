@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:e_commerce_app/core/network/errors/failures.dart';
 import 'package:e_commerce_app/domain/models/category_model.dart';
 import 'package:e_commerce_app/domain/models/product_model.dart';
@@ -18,8 +19,15 @@ class CategoriesRepoImpl implements CategoriesRepo {
       return result.fold(
         (failure) => Left(failure),
         (data) {
-          // Cast data as dynamic so we can safely check if it's a Map or List
-          final dynamic rawData = data;
+          // 1. Unwrap from DioConsumer if wrapped in {'data': ...}
+          dynamic rawData = data['data'] ?? data;
+
+          if (rawData is String) {
+            try {
+              rawData = jsonDecode(rawData);
+            } catch (_) {}
+          }
+
           List<dynamic> listData = [];
 
           if (rawData is List && rawData.isNotEmpty) {
@@ -31,16 +39,17 @@ class CategoriesRepoImpl implements CategoriesRepo {
           } else if (rawData is Map) {
             if (rawData['categories'] != null) {
               listData = rawData['categories'] as List<dynamic>;
-            } else if (rawData['data'] != null) {
-              listData = rawData['data'] as List<dynamic>;
             }
           }
 
-          final categories = listData
-              .map((e) => e is Map<String, dynamic>
-                  ? CategoryModel.fromJson(e)
-                  : CategoryModel.fromApiString(e.toString()))
-              .toList();
+          final categories = listData.map((e) {
+            if (e is Map) {
+              return CategoryModel.fromJson(Map<String, dynamic>.from(e));
+            } else {
+              final String str = e.toString();
+              return CategoryModel(id: str, name: str);
+            }
+          }).toList();
 
           return Right(categories);
         },
@@ -59,7 +68,14 @@ class CategoriesRepoImpl implements CategoriesRepo {
       return result.fold(
         (failure) => Left(failure),
         (data) {
-          final dynamic rawData = data;
+          dynamic rawData = data['data'] ?? data;
+
+          if (rawData is String) {
+            try {
+              rawData = jsonDecode(rawData);
+            } catch (_) {}
+          }
+
           List<dynamic> listData = [];
 
           if (rawData is List) {
@@ -67,14 +83,16 @@ class CategoriesRepoImpl implements CategoriesRepo {
           } else if (rawData is Map) {
             if (rawData['products'] != null) {
               listData = rawData['products'] as List<dynamic>;
-            } else if (rawData['data'] != null) {
-              listData = rawData['data'] as List<dynamic>;
             }
           }
 
-          final products = listData
-              .map((e) => Product.fromJson(e as Map<String, dynamic>))
-              .toList();
+          final products = listData.map((e) {
+            if (e is Map) {
+              return Product.fromJson(Map<String, dynamic>.from(e));
+            } else {
+              return Product.fromJson({});
+            }
+          }).toList();
 
           return Right(products);
         },

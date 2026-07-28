@@ -6,7 +6,17 @@ class CategoryCubit extends Cubit<CategoryState> {
   final CategoriesRepo categoryRepository;
 
   CategoryCubit(this.categoryRepository) : super(CategoryInitial());
+  
+ Future<void> getCategories() async {
+    emit(CategoryLoading());
 
+    final result = await categoryRepository.getCategories();
+
+    result.fold(
+      (failure) => emit(CategoryFailure(failure.msg)),
+      (categories) => emit(CategoriesFetchSuccess(categories)),
+    );
+  }
   Future<void> getProductsByCategory(String category) async {
     emit(CategoryLoading());
 

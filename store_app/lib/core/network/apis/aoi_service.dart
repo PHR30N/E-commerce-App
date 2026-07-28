@@ -30,9 +30,7 @@ class ApiService {
       if (response.statusCode == 200) {
         final List data = jsonDecode(response.body);
 
-        final categories = data
-            .map((e) => CategoryModel.fromApiString(e.toString()))
-            .toList();
+        final categories = data.map((e) => CategoryModel.fromJson(e as Map<String, dynamic>)).toList();
 
         return ApiResult.success(categories);
       }

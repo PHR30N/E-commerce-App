@@ -29,9 +29,8 @@ class _CategoryPageState extends State<CategoryPage> {
   @override
   void initState() {
     super.initState();
-
-    context.read<CategoryCubit>().getProductsByCategory(
-      widget.category.name,
+     context.read<CategoryCubit>().getProductsByCategory(
+        widget.category.id,
     );
   }
 

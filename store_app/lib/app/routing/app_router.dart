@@ -34,15 +34,10 @@ class AppRouter {
         path: '/',
         name: Routes.onboardingPage,
         redirect: (context, state) async {
-          // 1. Fetch value safely
           final isOpen = await localStorage?.getBool(LocalKey.isOpen) ?? false;
-
-          // 2. If onboarding was completed, redirect to Auth screen
           if (isOpen) {
             return '/${Routes.auth}';
           }
-
-          // 3. Return null so GoRouter stays on OnboardingPage
           return null;
         },
         builder: (context, state) => const OnboardingPage(),
@@ -86,15 +81,18 @@ class AppRouter {
               ),
             ],
           ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/${Routes.search}',
-                name: Routes.search,
-                builder: (context, state) => Search(),
-              ),
-            ],
-          ),
+         StatefulShellBranch(
+  routes: [
+    GoRoute(
+      path: '/${Routes.search}',
+      name: Routes.search,
+      builder: (context, state) => BlocProvider(
+        create: (context) => CategoryCubit(getIt<CategoriesRepo>()),
+        child: const Search(),
+      ),
+    ),
+  ],
+),
           StatefulShellBranch(
             routes: [
               GoRoute(
