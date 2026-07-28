@@ -1,10 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:e_commerce_app/core/local_storage/base_local_storage.dart';
+import 'package:e_commerce_app/core/network/apis/aoi_service.dart';
 import 'package:e_commerce_app/core/network/apis/api_consumer.dart';
 import 'package:e_commerce_app/core/network/apis/end_points.dart';
+import 'package:e_commerce_app/domain/repos/category_repo.dart';
 import 'package:e_commerce_app/domain/repos/products_repo.dart';
 import 'package:e_commerce_app/infrastructure/data_source/abstraction/products_data_source.dart';
 import 'package:e_commerce_app/infrastructure/data_source/implementation/auth_repo_impl.dart';
+import 'package:e_commerce_app/infrastructure/data_source/implementation/category_repo_impl.dart';
 import 'package:e_commerce_app/infrastructure/data_source/implementation/products_data_source_impl.dart';
 import 'package:e_commerce_app/infrastructure/data_source/repo/auth_repo.dart';
 import 'package:e_commerce_app/infrastructure/data_source/repo/products_repo_impl.dart';
@@ -54,14 +57,20 @@ abstract class InjectionHelper {
   // static void injectCore() {}
 
   static void injectDatasources() {
-    getIt.registerFactory<ProductsDataSource>(() => ProductsDataSourceImpl(
+     getIt.registerFactory<ProductsDataSource>(() => ProductsDataSourceImpl(
           apiConsumer: getIt<ApiConsumer>(),
         ));
+    getIt.registerLazySingleton<ApiService>(() => ApiService.instance);
   }
 
   static void injectRepos() {
-    getIt.registerFactory<AuthRepo>(() => AuthRepoImpl(apiConsumer: getIt<ApiConsumer>()));
+     getIt.registerFactory<AuthRepo>(() => AuthRepoImpl(apiConsumer: getIt<ApiConsumer>()));
     getIt.registerFactory<ProductsRepo>(() => ProductsRepoImpl(productsDataSource: getIt<ProductsDataSource>()));
+    getIt.registerFactory<CategoriesRepo>(
+      () => CategoriesRepoImpl(
+        apiService: getIt<ApiService>(),
+      ),
+    );
   }
 
   // static void injectCommands() {

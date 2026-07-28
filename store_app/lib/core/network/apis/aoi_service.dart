@@ -23,7 +23,7 @@ class ApiService {
 
   static const String baseUrl = "https://fakestoreapi.com";
 
-  static const Duration timeout = Duration(seconds: 10);
+  static const Duration timeout = Duration(seconds: 50);
 
   // Categories
   Future<ApiResult<List<CategoryModel>>> fetchCategories() async {
