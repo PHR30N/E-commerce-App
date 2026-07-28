@@ -5,8 +5,10 @@ import 'package:e_commerce_app/core/network/apis/api_consumer.dart';
 import 'package:e_commerce_app/core/network/apis/end_points.dart';
 import 'package:e_commerce_app/domain/repos/category_repo.dart';
 import 'package:e_commerce_app/domain/repos/products_repo.dart';
+import 'package:e_commerce_app/infrastructure/data_source/abstraction/category_data_source.dart';
 import 'package:e_commerce_app/infrastructure/data_source/abstraction/products_data_source.dart';
 import 'package:e_commerce_app/infrastructure/data_source/implementation/auth_repo_impl.dart';
+import 'package:e_commerce_app/infrastructure/data_source/implementation/category_data_source_impl.dart';
 import 'package:e_commerce_app/infrastructure/data_source/implementation/category_repo_impl.dart';
 import 'package:e_commerce_app/infrastructure/data_source/implementation/products_data_source_impl.dart';
 import 'package:e_commerce_app/infrastructure/data_source/repo/auth_repo.dart';
@@ -41,9 +43,8 @@ abstract class InjectionHelper {
     );
     getIt.registerSingleton<Dio>(Dio());
     getIt.registerSingleton<AppInterceptors>(
-        AppInterceptors(
-          // sharedPrefs: getIt()
-        ));
+      AppInterceptors(),
+    );
 
     getIt.registerSingleton<ApiConsumer>(
       DioConsumer(
@@ -57,18 +58,24 @@ abstract class InjectionHelper {
   // static void injectCore() {}
 
   static void injectDatasources() {
-     getIt.registerFactory<ProductsDataSource>(() => ProductsDataSourceImpl(
-          apiConsumer: getIt<ApiConsumer>(),
-        ));
-    getIt.registerLazySingleton<ApiService>(() => ApiService.instance);
+     getIt.registerFactory<ProductsDataSource>(
+      () => ProductsDataSourceImpl(apiConsumer: getIt<ApiConsumer>()),
+    );
+    getIt.registerFactory<CategoriesDataSource>(
+      () => CategoriesDataSourceImpl(apiConsumer: getIt<ApiConsumer>()),
+    );
   }
 
   static void injectRepos() {
-     getIt.registerFactory<AuthRepo>(() => AuthRepoImpl(apiConsumer: getIt<ApiConsumer>()));
-    getIt.registerFactory<ProductsRepo>(() => ProductsRepoImpl(productsDataSource: getIt<ProductsDataSource>()));
+    getIt.registerFactory<AuthRepo>(
+      () => AuthRepoImpl(apiConsumer: getIt<ApiConsumer>()),
+    );
+    getIt.registerFactory<ProductsRepo>(
+      () => ProductsRepoImpl(productsDataSource: getIt<ProductsDataSource>()),
+    );
     getIt.registerFactory<CategoriesRepo>(
       () => CategoriesRepoImpl(
-        apiService: getIt<ApiService>(),
+        categoriesDataSource: getIt<CategoriesDataSource>(),
       ),
     );
   }

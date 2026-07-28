@@ -18,14 +18,9 @@ class ApiResult<T> {
 
 class ApiService {
   ApiService._();
-
   static final ApiService instance = ApiService._();
-
-  static const String baseUrl = "https://fakestoreapi.com";
-
+  static const String baseUrl = "https://accessories-eshop.runasp.net";
   static const Duration timeout = Duration(seconds: 50);
-
-  // Categories
   Future<ApiResult<List<CategoryModel>>> fetchCategories() async {
     try {
       final response = await http
@@ -52,7 +47,7 @@ class ApiService {
   Future<List<Product>> fetchProductsByCategory(String category) async {
     try {
       final response = await http
-          .get(Uri.parse("$baseUrl/products/category/$category"))
+          .get(Uri.parse("$baseUrl/api/categories/$category"))
           .timeout(timeout);
 
       if (response.statusCode == 200) {
