@@ -11,6 +11,33 @@ class CategoriesRepoImpl implements CategoriesRepo {
 
   CategoriesRepoImpl({required this.categoriesDataSource});
 
+  List<dynamic> _extractList(dynamic input) {
+    if (input is List) {
+      if (input.isEmpty) return [];
+      if (input.first is Map) {
+        final firstMap = input.first as Map;
+        if (firstMap.containsKey('categories')) return firstMap['categories'] as List;
+        if (firstMap.containsKey('Categories')) return firstMap['Categories'] as List;
+        if (firstMap.containsKey('data')) return _extractList(firstMap['data']);
+        if (firstMap.containsKey('Data')) return _extractList(firstMap['Data']);
+      }
+      return input;
+    }
+
+    if (input is Map) {
+      if (input.containsKey('categories')) return _extractList(input['categories']);
+      if (input.containsKey('Categories')) return _extractList(input['Categories']);
+      if (input.containsKey('data')) return _extractList(input['data']);
+      if (input.containsKey('Data')) return _extractList(input['Data']);
+      if (input.containsKey('items')) return _extractList(input['items']);
+      if (input.containsKey('Items')) return _extractList(input['Items']);
+      if (input.containsKey('result')) return _extractList(input['result']);
+      if (input.containsKey('Result')) return _extractList(input['Result']);
+    }
+
+    return [];
+  }
+
   @override
   Future<Either<Failure, List<CategoryModel>>> getCategories() async {
     try {
@@ -19,7 +46,6 @@ class CategoriesRepoImpl implements CategoriesRepo {
       return result.fold(
         (failure) => Left(failure),
         (data) {
-          // 1. Unwrap from DioConsumer if wrapped in {'data': ...}
           dynamic rawData = data['data'] ?? data;
 
           if (rawData is String) {
@@ -28,19 +54,10 @@ class CategoriesRepoImpl implements CategoriesRepo {
             } catch (_) {}
           }
 
-          List<dynamic> listData = [];
+          // Print to debug console so you can see what the server returned
+          print("📦 RAW CATEGORIES FROM SERVER: $rawData");
 
-          if (rawData is List && rawData.isNotEmpty) {
-            if (rawData.first is Map && rawData.first['categories'] != null) {
-              listData = rawData.first['categories'] as List<dynamic>;
-            } else {
-              listData = rawData;
-            }
-          } else if (rawData is Map) {
-            if (rawData['categories'] != null) {
-              listData = rawData['categories'] as List<dynamic>;
-            }
-          }
+          final List<dynamic> listData = _extractList(rawData);
 
           final categories = listData.map((e) {
             if (e is Map) {
@@ -76,15 +93,7 @@ class CategoriesRepoImpl implements CategoriesRepo {
             } catch (_) {}
           }
 
-          List<dynamic> listData = [];
-
-          if (rawData is List) {
-            listData = rawData;
-          } else if (rawData is Map) {
-            if (rawData['products'] != null) {
-              listData = rawData['products'] as List<dynamic>;
-            }
-          }
+          final List<dynamic> listData = _extractList(rawData);
 
           final products = listData.map((e) {
             if (e is Map) {
