@@ -1,4 +1,6 @@
 import 'package:e_commerce_app/app/routing/routes.dart';
+import 'package:e_commerce_app/presentaion/cubit/auth_cubit.dart';
+import 'package:e_commerce_app/presentaion/cubit/auth_state.dart';
 import 'package:e_commerce_app/presentaion/cubit/verify_email_cubit.dart';
 import 'package:e_commerce_app/presentaion/cubit/verify_email_state.dart';
 import 'package:e_commerce_app/presentaion/screen/register_page.dart';
@@ -27,24 +29,25 @@ class _VerificationPageState extends State<VerificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<VerifyEmailCubit, VerifyEmailState>(
+    return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is VerifyEmailSuccess) {
+        if (state is VerifySuccess) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
+          ).showSnackBar(SnackBar(content: Text("Email Verified Successfully")));
 
           context.go('/${Routes.homePage}');
         }
 
-        if (state is VerifyEmailFailure) {
+        if (state is AuthFailure) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
-
-      child: Scaffold(
+      builder: (context,state){
+        final isLoading = state is AuthLoading;
+      return Scaffold(
         backgroundColor: const Color.fromARGB(255, 161, 202, 234),
 
         appBar: AppBar(
@@ -68,22 +71,20 @@ class _VerificationPageState extends State<VerificationPage> {
               const SizedBox(height: 30),
 
               TextField(
-                controller: otpController,
-
-                keyboardType: TextInputType.number,
-
-                textAlign: TextAlign.center,
-
-                maxLength: 6,
-
-                decoration: InputDecoration(
-                  hintText: "OTP",
-
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
+  controller: otpController,
+  keyboardType: TextInputType.number,
+  textAlign: TextAlign.center,
+  maxLength: 6,
+  autofillHints: null, 
+  decoration: InputDecoration(
+    filled: true,     
+    fillColor: Colors.white,
+    hintText: "OTP",
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+  ),
+),
 
               const SizedBox(height: 20),
 
@@ -91,10 +92,18 @@ class _VerificationPageState extends State<VerificationPage> {
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
-                  onPressed: () {
-                    context.read<VerifyEmailCubit>().verifyEmail(
+                  onPressed:isLoading?null:(){ final otp = otpController.text.trim();
+                            if (otp.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Please enter the OTP"),
+                                ),
+                              );
+                              return;
+                            }
+                    context.read<AuthCubit>().verify(
                       email: widget.email,
-                      otp: otpController.text,
+                      otp: otp,
                     );
                   },
                   child: const Text(
@@ -106,7 +115,8 @@ class _VerificationPageState extends State<VerificationPage> {
             ],
           ),
         ),
-      ),
-    );
+      );
+      },
+  );
   }
 }

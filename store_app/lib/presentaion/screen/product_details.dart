@@ -1,3 +1,5 @@
+import 'package:e_commerce_app/presentaion/cubit/cart_cubit.dart';
+
 import '../cubit/home_cubit.dart';
 import 'package:e_commerce_app/presentaion/cubit/home_state.dart';
 import 'package:flutter/material.dart';
@@ -75,7 +77,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children:[ ElevatedButton(onPressed: (){}, child: Text("Add To Cart",style: TextStyle(color: Colors.deepPurple[300],fontSize: 18),)),
+              children:[ ElevatedButton(onPressed: (){context.read<CartCubit>().addToCart(productId: product.id,quantity: 1,);}
+              , child: Text("Add To Cart",style: TextStyle(color: Colors.deepPurple[300],fontSize: 18),)),
           ])
           ],
         ),

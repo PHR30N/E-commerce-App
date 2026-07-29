@@ -4,6 +4,7 @@ import 'package:e_commerce_app/domain/models/category_model.dart';
 import 'package:e_commerce_app/domain/repos/category_repo.dart';
 import 'package:e_commerce_app/domain/repos/products_repo.dart';
 import 'package:e_commerce_app/injection_container.dart';
+import 'package:e_commerce_app/presentaion/cubit/auth_cubit.dart';
 import 'package:e_commerce_app/presentaion/cubit/category_cubit.dart';
 import 'package:e_commerce_app/presentaion/cubit/register_cubit.dart';
 import 'package:e_commerce_app/presentaion/cubit/verify_email_cubit.dart';
@@ -51,14 +52,16 @@ class AppRouter {
       GoRoute(
         path: '/${Routes.loginPage}',
         name: Routes.loginPage,
-        builder: (context, state) => const LoginPage(),
+        builder: (context, state) => BlocProvider(
+          create: (context) => getIt<AuthCubit>(),
+          child: const LoginPage(),
+        ),
       ),
-
       GoRoute(
         path: '/${Routes.registerPage}',
         name: Routes.registerPage,
         builder: (context, state) => BlocProvider(
-          create: (context) => getIt<RegisterCubit>(),
+          create: (context) => getIt<AuthCubit>(),
           child: const RegisterPage(),
         ),
       ),
@@ -151,7 +154,7 @@ GoRoute(
             builder: (context, state) {
               final email = state.extra as String? ?? '';
               return BlocProvider(
-                create: (context) => getIt<VerifyEmailCubit>(),
+                create: (context) => getIt<AuthCubit>(),
                 child: VerificationPage(email: email),
               );
             },
