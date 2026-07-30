@@ -24,19 +24,27 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<void> getCart() async {
-    emit(CartLoading());
-    final response = await cartRepo.getCart();
-    response.fold(
-      (failure) => emit(CartFailure(message: failure.msg)),
-      (data) {
-        try {
-          dynamic rawData = data['data'] ?? data;
+  emit(CartLoading());
+  final response = await cartRepo.getCart();
+  response.fold(
+    (failure) => emit(CartFailure(message: failure.msg)),
+    (data) {
+      try {
+        dynamic rawData = data;
+        if (data is Map && data.containsKey('data')) {
+          rawData = data['data'];
+        }
+
+        if (rawData is Map) {
           final cart = CartModel.fromJson(Map<String, dynamic>.from(rawData));
           emit(GetCartSuccess(cart: cart));
-        } catch (e) {
-          emit(CartFailure(message: e.toString()));
-  }
- },
-    );
-  }
+        } else {
+          emit(CartFailure(message: "Invalid cart data format received."));
+        }
+      } catch (e) {
+        emit(CartFailure(message: e.toString()));
+      }
+    },
+  );
+}
 }

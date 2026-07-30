@@ -88,6 +88,7 @@ abstract class InjectionHelper {
     getIt.registerFactory<CategoriesRepo>(
       () => CategoriesRepoImpl(
         categoriesDataSource: getIt<CategoriesDataSource>(),
+        productsDataSource: getIt<ProductsDataSource>(),
       ),
     );
     getIt.registerLazySingleton<CartRepo>(

@@ -1,4 +1,5 @@
 import 'package:e_commerce_app/app/routing/routes.dart';
+import 'package:e_commerce_app/injection_container.dart';
 import 'package:e_commerce_app/presentaion/cubit/auth_cubit.dart';
 import 'package:e_commerce_app/presentaion/cubit/auth_state.dart';
 import 'package:flutter/material.dart';
@@ -30,151 +31,102 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AuthCubit, AuthState>(
-      listener: (context, state) {
-        if (state is LoginSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Login Successful!")),
-          );
-          context.go('/${Routes.homePage}');
-        }
+    return BlocProvider(
+      create: (_) => getIt<AuthCubit>(),
+      child: BlocConsumer<AuthCubit, AuthState>(
+listener: (context, state) {
+          if (state is LoginSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Login Successful!"),
+              ),
+            );
+            context.go('/${Routes.homePage}');
+          }
+          if (state is AuthFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+              ),
+            );
+            if (state.message.toLowerCase().contains("not verified")) {
+              context.push("/verification", extra: emailController.text.trim());
+            }
+          }
+        },
+        builder: (context, state) {
+          final isLoading = state is AuthLoading;
 
-        if (state is AuthFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
-        }
-      },
-      builder: (context, state) {
-        final isLoading = state is AuthLoading;
+          return Scaffold(
+            backgroundColor: const Color.fromARGB(255, 161, 202, 234),
+            body: SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: formKey,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 30),
 
-        return Scaffold(
-          backgroundColor: const Color.fromARGB(255, 161, 202, 234),
-          body: SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                child: Form(
-                  key: formKey,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 30),
-                        const Text(
-                          "Welcome to Faster.",
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "WorkSans",
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-                        socialButton(
-                          Icons.g_mobiledata,
-                          "Login with Google",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontFamily: "WorkSans",
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        socialButton(
-                          Icons.apple,
-                          "Login with Apple",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontFamily: "WorkSans",
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        socialButton(
-                          Icons.facebook,
-                          "Login with Facebook",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontFamily: "WorkSans",
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            "or by email",
+                          const Text(
+                            "Welcome to Faster.",
                             style: TextStyle(
-                              color: Colors.white,
+                              fontSize: 26,
                               fontWeight: FontWeight.bold,
                               fontFamily: "WorkSans",
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        TextFormField(
-                          controller: emailController,
-                          style: const TextStyle(
-                            fontFamily: "WorkSans",
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            hintText: "Email Address",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+
+                          const SizedBox(height: 30),
+
+                          // Google
+                          socialButton(
+                            Icons.g_mobiledata,
+                            "Login with Google",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontFamily: "WorkSans",
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black,
                             ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Email is required";
-                            }
-                            if (!value.contains("@")) {
-                              return "Enter a valid email";
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            email = value;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        TextFormField(
-                          controller: passwordController,
-                          style: const TextStyle(
-                            fontFamily: "WorkSans",
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            hintText: "Password",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+
+                          const SizedBox(height: 15),
+
+                          // Apple
+                          socialButton(
+                            Icons.apple,
+                            "Login with Apple",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontFamily: "WorkSans",
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black,
                             ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Password is required";
-                            }
-                            if (value.length < 8) {
-                              return "Password must be at least 8 characters";
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            password = value;
-                          },
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
+
+                          const SizedBox(height: 15),
+
+                          // Facebook
+                          socialButton(
+                            Icons.facebook,
+                            "Login with Facebook",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontFamily: "WorkSans",
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black,
+                            ),
+                          ),
+
+                          const SizedBox(height: 15),
+
+                          TextButton(
                             onPressed: () {},
                             child: const Text(
-                              "Forgot Password?",
+                              "or by email",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -182,40 +134,138 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 25),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 55,
-                          child: ElevatedButton(
-  onPressed: isLoading
-      ? null
-      : () {
-          if (formKey.currentState!.validate()) {
-            formKey.currentState!.save();
-            context.read<AuthCubit>().login(
-                  email: emailController.text.trim(),
-                  password: passwordController.text,
-                );
-          }
-        },
-  child: const Text("Login"),
-)
-                        ),
-                        const SizedBox(height: 30),
-                      ],
+
+                          const SizedBox(height: 20),
+
+                          // Email
+                          TextFormField(
+                            controller: emailController,
+                            style: const TextStyle(
+                              fontFamily: "WorkSans",
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(
+                              hintText: "Email Address",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Email is required";
+                              }
+
+                              if (!value.contains("@")) {
+                                return "Enter a valid email";
+                              }
+
+                              return null;
+                            },
+                            onSaved: (value) {
+                              email = value;
+                            },
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // Password
+                          TextFormField(
+                            controller: passwordController,
+                            style: const TextStyle(
+                              fontFamily: "WorkSans",
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              hintText: "Password",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Password is required";
+                              }
+
+                              if (value.length < 8) {
+                                return "Password must be at least 8 characters";
+                              }
+
+                              return null;
+                            },
+                            onSaved: (value) {
+                              password = value;
+                            },
+                          ),
+
+                          // Forgot password
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {},
+                              child: const Text(
+                                "Forgot Password?",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: "WorkSans",
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 25),
+
+                          // Login button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 55,
+                            child: ElevatedButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : () {
+                                      if (formKey.currentState!.validate()) {
+                                        formKey.currentState!.save();
+
+                                        context.read<AuthCubit>().login(
+                                              email: emailController.text.trim(),
+                                              password:
+                                                  passwordController.text,
+                                            );
+                                      }
+                                    },
+                              child: isLoading
+                                  ? const SizedBox(
+                                      width: 25,
+                                      height: 25,
+                                      child: CircularProgressIndicator(),
+                                    )
+                                  : const Text("Login"),
+                            ),
+                          ),
+
+                          const SizedBox(height: 30),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
-  Widget socialButton(IconData icon, String text, {TextStyle? style}) {
+  Widget socialButton(
+    IconData icon,
+    String text, {
+    TextStyle? style,
+  }) {
     return SizedBox(
       width: double.infinity,
       height: 55,
@@ -223,7 +273,9 @@ class _LoginPageState extends State<LoginPage> {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
-          side: const BorderSide(color: Colors.white),
+          side: const BorderSide(
+            color: Colors.white,
+          ),
         ),
         onPressed: () {},
         icon: Icon(icon),

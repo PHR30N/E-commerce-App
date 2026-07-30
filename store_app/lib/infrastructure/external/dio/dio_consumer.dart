@@ -1,9 +1,7 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:e_commerce_app/core/network/apis/api_consumer.dart';
-import 'package:e_commerce_app/core/network/apis/end_points.dart';
 import 'package:e_commerce_app/core/network/apis/status_codes.dart';
 import 'package:e_commerce_app/core/network/errors/exceptions.dart';
 import 'package:e_commerce_app/core/network/errors/failures.dart';
@@ -18,9 +16,9 @@ class DioConsumer implements ApiConsumer {
     required Dio client,
     required String baseUrl,
     required List<Interceptor> interceptors,
-  }) : _baseUrl = baseUrl,
-       _interceptors = interceptors,
-       _client = client {
+  })  : _baseUrl = baseUrl,
+        _interceptors = interceptors,
+        _client = client {
     (_client.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
       final client = HttpClient();
       client.badCertificateCallback =
@@ -31,8 +29,9 @@ class DioConsumer implements ApiConsumer {
     _client.options = BaseOptions(
       baseUrl: _baseUrl,
       followRedirects: false,
+      // Only 2xx HTTP status codes are valid success responses
       validateStatus: (status) {
-        return status! < StatusCodes.internalServerError;
+        return status != null && status >= 200 && status < 300;
       },
     );
 
@@ -40,7 +39,7 @@ class DioConsumer implements ApiConsumer {
   }
 
   @override
-  Future<Either<ServerFailure, Map<String, dynamic>>> get({
+  Future<Either<ServerFailure, dynamic>> get({
     required String path,
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
@@ -51,11 +50,7 @@ class DioConsumer implements ApiConsumer {
         queryParameters: queryParameters,
         options: Options(headers: headers),
       );
-      if (response.data is Map<String, dynamic>) {
-        return Right(response.data);
-      } else {
-        return Right({'data': response.data});
-      }
+      return Right(response.data);
     } on DioException catch (error) {
       return Left(_handleDioError(error));
     }
@@ -80,10 +75,9 @@ class DioConsumer implements ApiConsumer {
         queryParameters: queryParameters,
       );
       if (response.data is Map<String, dynamic>) {
-        return Right(response.data);
-      } else {
-        return Right({'data': response.data});
+        return Right(response.data as Map<String, dynamic>);
       }
+      return Right({"data": response.data});
     } on DioException catch (error) {
       return Left(_handleDioError(error));
     }
@@ -103,11 +97,10 @@ class DioConsumer implements ApiConsumer {
         queryParameters: queryParameters,
         options: Options(headers: headers),
       );
-       if (response.data is Map<String, dynamic>) {
-        return Right(response.data);
-      } else {
-        return Right({'data': response.data});
+      if (response.data is Map<String, dynamic>) {
+        return Right(response.data as Map<String, dynamic>);
       }
+      return Right({"data": response.data});
     } on DioException catch (error) {
       return Left(_handleDioError(error));
     }
@@ -128,55 +121,59 @@ class DioConsumer implements ApiConsumer {
         options: Options(headers: headers),
       );
       if (response.data is Map<String, dynamic>) {
-        return Right(response.data);
-      } else {
-        return Right({'data': response.data});
+        return Right(response.data as Map<String, dynamic>);
       }
+      return Right({"data": response.data});
     } on DioException catch (error) {
       return Left(_handleDioError(error));
     }
   }
 
   ServerFailure _handleDioError(DioException error) {
-    late ServerException exception;
-    switch (error.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
-        exception = const FetchDataException();
-      case DioExceptionType.badResponse:
-        switch (error.response?.statusCode) {
-          case StatusCodes.unauthorized:
-          case StatusCodes.forbidden:
-            exception = const UnauthorizedException();
-          case StatusCodes.notFound:
-            exception = const NotFoundException();
-          case StatusCodes.conflict:
-            exception = const ConflictException();
-          case StatusCodes.internalServerError:
-            exception = const InternalServerErrorException();
+    if (error.type == DioExceptionType.badResponse && error.response != null) {
+      final statusCode = error.response?.statusCode;
+      final responseData = error.response?.data;
+      String? backendMsg;
+      if (responseData is Map) {
+        if (responseData.containsKey('errors') && responseData['errors'] is Map) {
+          final errorsMap = responseData['errors'] as Map;
+          final firstErrorList = errorsMap.values.firstOrNull;
+          if (firstErrorList is List && firstErrorList.isNotEmpty) {
+            backendMsg = firstErrorList.first.toString();
+          }
         }
-        break;
-      case DioExceptionType.cancel:
-      case DioExceptionType.badCertificate:
-      case DioExceptionType.connectionError:
-      case DioExceptionType.unknown:
-        exception = const NoInternetConnectionException();
-      case DioExceptionType.transformTimeout:
-        throw UnimplementedError();
+        backendMsg ??= responseData['message']?.toString();
+      } else if (responseData is String && responseData.isNotEmpty) {
+        backendMsg = responseData;
+      }
+
+      if (backendMsg != null && backendMsg.isNotEmpty) {
+        return ServerFailure(msg: backendMsg);
+      }
+
+      if (statusCode == StatusCodes.unauthorized) {
+        return const ServerFailure(
+          msg: "Unauthorized: Please log in to view this content.",
+        );
+      } else if (statusCode == StatusCodes.badRequest) {
+        return const ServerFailure(msg: "Bad Request");
+      } else if (statusCode == StatusCodes.notFound) {
+        return const ServerFailure(msg: "Requested Info Not Found");
+      } else if (statusCode == StatusCodes.forbidden) {
+        return const ServerFailure(msg: "Access Forbidden");
+      } else if (statusCode == StatusCodes.internalServerError) {
+        return const ServerFailure(msg: "Internal Server Error");
+      }
     }
 
-    return ServerFailure(msg: exception.msg);
-  }
+    if (error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.receiveTimeout ||
+        error.type == DioExceptionType.sendTimeout) {
+      return const ServerFailure(msg: "Connection Timeout");
+    } else if (error.type == DioExceptionType.connectionError) {
+      return const ServerFailure(msg: "No Internet Connection");
+    }
 
-  @override
-  Future<Either<ServerFailure, Map<String, dynamic>>> verifyEmail({
-    required String email,
-    required String otp,
-  }) {
-    return post(
-      path: EndPoints.verify,
-      body: {"email": email, "otp": otp},
-    );
+    return ServerFailure(msg: error.message ?? "An unexpected error occurred");
   }
 }

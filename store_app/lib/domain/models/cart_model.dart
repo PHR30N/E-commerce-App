@@ -8,12 +8,25 @@ class CartModel {
   });
 
   factory CartModel.fromJson(Map<String, dynamic> json) {
+    final rawItems = json['cartItems'] ??
+        json['CartItems'] ??
+        json['items'] ??
+        json['Items'] ??
+        [];
+
+    List<CartItemModel> itemsList = [];
+    if (rawItems is List) {
+      itemsList = rawItems
+          .map((e) => CartItemModel.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    }
+
     return CartModel(
-      cartId: json['cartId'] ?? json['CartId'] ?? '',
-      cartItems: (json['cartItems'] ?? json['CartItems'] as List<dynamic>?)
-              ?.map((e) => CartItemModel.fromJson(Map<String, dynamic>.from(e)))
-              .toList() ??
-          [],
+      cartId: json['cartId']?.toString() ??
+          json['CartId']?.toString() ??
+          json['id']?.toString() ??
+          '',
+      cartItems: itemsList,
     );
   }
 }
@@ -45,23 +58,34 @@ class CartItemModel {
     required this.totalPrice,
   });
 
+  static int _toInt(dynamic val, [int defaultValue = 0]) {
+    if (val == null) return defaultValue;
+    if (val is num) return val.toInt();
+    if (val is String) return int.tryParse(val) ?? (double.tryParse(val)?.toInt() ?? defaultValue);
+    return defaultValue;
+  }
+
+  static num _toNum(dynamic val, [num defaultValue = 0]) {
+    if (val == null) return defaultValue;
+    if (val is num) return val;
+    if (val is String) return num.tryParse(val) ?? defaultValue;
+    return defaultValue;
+  }
+
   factory CartItemModel.fromJson(Map<String, dynamic> json) {
     return CartItemModel(
-      itemId: json['itemId'] ?? json['ItemId'] ?? '',
-      productId: json['productId'] ?? json['ProductId'] ?? '',
-      productName: json['productName'] ?? json['ProductName'] ?? 'Product',
+      itemId: json['itemId']?.toString() ?? json['ItemId']?.toString() ?? json['id']?.toString() ?? '',
+      productId: json['productId']?.toString() ?? json['ProductId']?.toString() ?? '',
+      productName: json['productName'] ?? json['ProductName'] ?? json['name'] ?? json['Name'] ?? 'Product',
       productCoverUrl:
-          json['productCoverUrl'] ?? json['ProductCoverUrl'] ?? '',
-      productStock: json['productStock'] ?? json['ProductStock'] ?? 0,
-      weightInGrams: json['weightInGrams'] ?? json['WeightInGrams'] ?? 0,
-      quantity: json['quantity'] ?? json['Quantity'] ?? 1,
-      discountPercentage:
-          json['discountPercentage'] ?? json['DiscountPercentage'] ?? 0,
-      basePricePerUnit:
-          json['basePricePerUnit'] ?? json['BasePricePerUnit'] ?? 0,
-      finalPricePerUnit:
-          json['finalPricePerUnit'] ?? json['FinalPricePerUnit'] ?? 0,
-      totalPrice: json['totalPrice'] ?? json['TotalPrice'] ?? 0,
+          json['productCoverUrl'] ?? json['ProductCoverUrl'] ?? json['coverPictureUrl'] ?? '',
+      productStock: _toInt(json['productStock'] ?? json['ProductStock']),
+      weightInGrams: _toInt(json['weightInGrams'] ?? json['WeightInGrams']),
+      quantity: _toInt(json['quantity'] ?? json['Quantity'], 1),
+      discountPercentage: _toNum(json['discountPercentage'] ?? json['DiscountPercentage']),
+      basePricePerUnit: _toNum(json['basePricePerUnit'] ?? json['BasePricePerUnit']),
+      finalPricePerUnit: _toNum(json['finalPricePerUnit'] ?? json['FinalPricePerUnit']),
+      totalPrice: _toNum(json['totalPrice'] ?? json['TotalPrice']),
     );
   }
 }

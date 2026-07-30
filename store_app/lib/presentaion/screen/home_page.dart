@@ -1,4 +1,5 @@
 import 'package:e_commerce_app/app/routing/routes.dart';
+import 'package:e_commerce_app/presentaion/cubit/cart_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +12,7 @@ class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => HomePageState();
 }
+
 class HomePageState extends State<HomePage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
@@ -19,11 +21,13 @@ class HomePageState extends State<HomePage> {
     'assets/images/banner_2.jpg',
     'assets/images/banner_3.jpg',
   ];
+
   @override
   void initState() {
     super.initState();
     context.read<HomeCubit>().getProducts();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -211,29 +215,68 @@ class HomePageState extends State<HomePage> {
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(8),
-                                  child: Text(
-                                    product.name,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        product.name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "${product.price} EGP",
+                                            style: const TextStyle(
+                                              color: Colors.green,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              context.read<CartCubit>().addToCart(
+                                                    productId: product.id,
+                                                    quantity: 1,
+                                                  );
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      "${product.name} added to cart"),
+                                                  duration: const Duration(
+                                                      seconds: 2),
+                                                ),
+                                              );
+                                            },
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(6),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF2E5B5E),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: const Icon(
+                                                Icons.add_shopping_cart,
+                                                color: Colors.white,
+                                                size: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8),
-                                  child: Text(
-                                    "${product.price} EGP",
-                                    style: const TextStyle(
-                                      color: Colors.green,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
                               ],
                             ),
                           ),
