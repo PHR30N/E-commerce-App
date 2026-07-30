@@ -32,17 +32,18 @@ class _VerificationPageState extends State<VerificationPage> {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is VerifySuccess) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text("Email Verified Successfully")));
-
-          context.go('/${Routes.homePage}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Email Verified Successfully! Please log in."),
+            ),
+          );
+          context.goNamed(Routes.loginPage);
         }
 
         if (state is AuthFailure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
         }
       },
       builder: (context,state){

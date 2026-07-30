@@ -14,7 +14,14 @@ class _CartPageState extends State<CartPage> {
   @override
   void initState() {
     super.initState();
-    context.read<CartCubit>().getCart();
+    _fetchCart();
+  }
+
+  void _fetchCart() {
+    final cubit = context.read<CartCubit>();
+    if (cubit.state is! CartLoading) {
+      cubit.getCart();
+    }
   }
 
   @override
@@ -25,8 +32,22 @@ class _CartPageState extends State<CartPage> {
         title: const Text("My Cart"),
         backgroundColor: const Color.fromARGB(255, 161, 202, 234),
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => context.read<CartCubit>().getCart(),
+          ),
+        ],
       ),
-      body: BlocBuilder<CartCubit, CartState>(
+      body: BlocConsumer<CartCubit, CartState>(
+        listener: (context, state) {
+          if (state is AddToCartSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+            context.read<CartCubit>().getCart();
+          }
+        },
         builder: (context, state) {
           if (state is CartLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -34,20 +55,23 @@ class _CartPageState extends State<CartPage> {
 
           if (state is CartFailure) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    state.message,
-                    style: const TextStyle(color: Colors.red, fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: () => context.read<CartCubit>().getCart(),
-                    child: const Text("Retry"),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      state.message,
+                      style: const TextStyle(color: Colors.red, fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () => context.read<CartCubit>().getCart(),
+                      child: const Text("Retry"),
+                    ),
+                  ],
+                ),
               ),
             );
           }
@@ -189,9 +213,7 @@ class _CartPageState extends State<CartPage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        onPressed: () {
-                          // Perform checkout action
-                        },
+                        onPressed: () {},
                         child: const Text(
                           "Checkout",
                           style: TextStyle(fontSize: 16),
@@ -203,7 +225,13 @@ class _CartPageState extends State<CartPage> {
               ],
             );
           }
-          return const SizedBox.shrink();
+
+          return Center(
+            child: ElevatedButton(
+              onPressed: () => context.read<CartCubit>().getCart(),
+              child: const Text("Load Cart"),
+            ),
+          );
         },
       ),
     );
