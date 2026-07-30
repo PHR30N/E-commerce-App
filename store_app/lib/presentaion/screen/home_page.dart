@@ -28,6 +28,16 @@ class HomePageState extends State<HomePage> {
     context.read<HomeCubit>().getProducts();
   }
 
+  void _navigateToDetails(String id, String name) {
+    context.pushNamed(
+      Routes.detailsPage,
+      queryParameters: {
+        "id": id,
+        "name": name,
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -180,27 +190,19 @@ class HomePageState extends State<HomePage> {
                       ),
                       itemBuilder: (context, index) {
                         final product = response.items[index];
-                        return InkWell(
-                          borderRadius: BorderRadius.circular(16),
-                          onTap: () {
-                            context.pushNamed(
-                              Routes.detailsPage,
-                              queryParameters: {
-                                "id": product.id,
-                                "name": product.name,
-                              },
-                            );
-                          },
-                          child: Card(
-                            elevation: 4,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
+                        return Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () =>
+                                      _navigateToDetails(product.id, product.name),
                                   child: Image.network(
                                     product.coverPictureUrl,
                                     width: double.infinity,
@@ -213,12 +215,16 @@ class HomePageState extends State<HomePage> {
                                     },
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    InkWell(
+                                      onTap: () => _navigateToDetails(
+                                          product.id, product.name),
+                                      child: Text(
                                         product.name,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -227,58 +233,50 @@ class HomePageState extends State<HomePage> {
                                           fontSize: 15,
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "${product.price} EGP",
-                                            style: const TextStyle(
-                                              color: Colors.green,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "${product.price} EGP",
+                                          style: const TextStyle(
+                                            color: Colors.green,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                          InkWell(
-                                            onTap: () {
-                                              context.read<CartCubit>().addToCart(
-                                                    productId: product.id,
-                                                    quantity: 1,
-                                                  );
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                      "${product.name} added to cart"),
-                                                  duration: const Duration(
-                                                      seconds: 2),
-                                                ),
-                                              );
-                                            },
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            child: Container(
-                                              padding: const EdgeInsets.all(6),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFF2E5B5E),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: const Icon(
-                                                Icons.add_shopping_cart,
-                                                color: Colors.white,
-                                                size: 18,
-                                              ),
-                                            ),
+                                        ),
+                                        IconButton(
+                                          constraints: const BoxConstraints(),
+                                          padding: EdgeInsets.zero,
+                                          icon: const Icon(
+                                            Icons.add_shopping_cart,
+                                            color: Color(0xFF2E5B5E),
+                                            size: 20,
                                           ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                          onPressed: () {
+                                            context.read<CartCubit>().addToCart(
+                                                  productId: product.id,
+                                                  quantity: 1,
+                                                );
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    "${product.name} added to cart"),
+                                                duration: const Duration(
+                                                    seconds: 2),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         );
                       },
