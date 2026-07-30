@@ -203,7 +203,7 @@ class _CartPageState extends State<CartPage> {
                           ),
                         ],
                       ),
-                      ElevatedButton(
+                     ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 32,
@@ -213,7 +213,24 @@ class _CartPageState extends State<CartPage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          context.read<CartCubit>().clearCart();
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text("Order Placed!"),
+                              content: const Text(
+                                "Thank you for your purchase. Your order has been placed successfully and your cart has been cleared.",
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(),
+                                  child: const Text("OK"),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                         child: const Text(
                           "Checkout",
                           style: TextStyle(fontSize: 16),
