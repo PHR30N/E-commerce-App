@@ -28,7 +28,7 @@ class VerifyEmailCubit extends Cubit<VerifyEmailState> {
 
 
 
-    final result = await authRepo.verifyEmail(
+    final result = await authRepo.verify(
 
       email: email,
 

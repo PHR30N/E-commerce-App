@@ -28,13 +28,4 @@ abstract class ApiConsumer {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
   });
-  Future<Either<ServerFailure, Map<String, dynamic>>> verifyEmail({
-    required String email,
-    required String otp,
-  }) {
-    return post(
-      path: EndPoints.verifyEmail,
-      body: {"email": email, "otp": otp},
-    );
-  }
 }

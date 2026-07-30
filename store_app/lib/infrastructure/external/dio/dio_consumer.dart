@@ -79,7 +79,11 @@ class DioConsumer implements ApiConsumer {
             : body,
         queryParameters: queryParameters,
       );
-      return Right(response.data);
+      if (response.data is Map<String, dynamic>) {
+        return Right(response.data);
+      } else {
+        return Right({'data': response.data});
+      }
     } on DioException catch (error) {
       return Left(_handleDioError(error));
     }
@@ -99,7 +103,11 @@ class DioConsumer implements ApiConsumer {
         queryParameters: queryParameters,
         options: Options(headers: headers),
       );
-      return Right(response.data);
+       if (response.data is Map<String, dynamic>) {
+        return Right(response.data);
+      } else {
+        return Right({'data': response.data});
+      }
     } on DioException catch (error) {
       return Left(_handleDioError(error));
     }
@@ -119,7 +127,11 @@ class DioConsumer implements ApiConsumer {
         queryParameters: queryParameters,
         options: Options(headers: headers),
       );
-      return Right(response.data);
+      if (response.data is Map<String, dynamic>) {
+        return Right(response.data);
+      } else {
+        return Right({'data': response.data});
+      }
     } on DioException catch (error) {
       return Left(_handleDioError(error));
     }
@@ -163,7 +175,7 @@ class DioConsumer implements ApiConsumer {
     required String otp,
   }) {
     return post(
-      path: EndPoints.verifyEmail,
+      path: EndPoints.verify,
       body: {"email": email, "otp": otp},
     );
   }

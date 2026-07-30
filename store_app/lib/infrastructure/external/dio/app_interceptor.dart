@@ -1,27 +1,28 @@
+import 'package:e_commerce_app/core/constant/local_key.dart';
 import 'dart:developer';
-
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
+import 'package:e_commerce_app/core/local_storage/base_local_storage.dart';
+import 'package:flutter/foundation.dart' hide LocalKey;
 
 
 class AppInterceptors extends Interceptor {
   AppInterceptors(
-    // {required BaseLocalStorage sharedPrefs}
-  );
-      // : _sharedPrefs = sharedPrefs;
+    {required BaseLocalStorage sharedPrefs}
+  )
+      : _sharedPrefs = sharedPrefs;
 
-  // final BaseLocalStorage _sharedPrefs;
+  final BaseLocalStorage _sharedPrefs;
 
   @override
   Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // final token = await _sharedPrefs.getString(LocalKeys.accessToken);
-
-    // if (token != null && token.isNotEmpty) {
-      // options.headers['Authorization'] = 'Bearer $token';
-    // }
+    final token = await _sharedPrefs.getString(LocalKey.token);
+print("🔑 TOKEN IN INTERCEPTOR: '$token'");
+    if (token != null && token.isNotEmpty) {
+      options.headers['Authorization'] = 'Bearer $token';
+    }
 
     if (kDebugMode) {
       log('REQUEST[${options.method}] => PATH: ${options.path}');
